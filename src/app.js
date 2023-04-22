@@ -29,8 +29,7 @@ mongoClient
   const userSchema = joi.object({
     name: joi.string().required(),
     email: joi.string().email().required(),
-    password: joi.string().required().min(3),
-    confirmPassword: joi.string().required().min(3)
+    password: joi.string().required().min(3)
 })
 
   //Endpoints
@@ -50,6 +49,7 @@ app.post("/sign-up", async (req, res) => {
       const hash = bcrypt.hashSync(password, 10)
 
       await db.collection("users").insertOne({ name, email, password: hash })
+      console.log(hash)
       res.sendStatus(201)
 
   } catch (err) {
@@ -62,7 +62,7 @@ app.post("/sign-in", async (req, res) => {
 
   try {
       const user = await db.collection("users").findOne({ email })
-      if (!user) return res.status(401).send("E-mail não cadastrado.")
+      if (!user) return res.status(404).send("E-mail não cadastrado.")
 
       const passwordIsCorrect = bcrypt.compareSync(password, user.password)
       if (!passwordIsCorrect) return res.status(401).send("Senha incorreta")
