@@ -81,16 +81,25 @@ app.post("/sign-in", async (req, res) => {
   }
 })
 
-app.get("home", async (req, res) => {
+app.get("/home", async (req, res) => {
   const { authorization } = req.headers
   const token = authorization?.replace("Bearer ", "")
 
   if (!token) return res.sendStatus(401);
 
   try {
-    const user = await db.collection("sessions").findOne({token})
-    const transactions = await db.collection("transactions").find({idUser : user._id}).toArray();
+    // Verificar se o token recebido é válido
+    const session = await db.collection("sessions").findOne({token})
+    if (!session) return res.sendStatus(401);
+
+    // Achar o usuário
+    const user = await db.collection("users").findOne({ email : session.email })
+    if (!user) return res.sendStatus(401)
+
+    // Pegar somente as transações do usuário logado
+    const transactions = await db.collection("transactions").find({email: user.email}).toArray();
     res.send(transactions)
+
   }catch (err) {
     res.status(500).send(err.message)
   }
@@ -110,14 +119,10 @@ app.post("/transactions", async (req, res) => {
   };
 
   try {
-    console.log(req.headers) 
-
     // Verificar se o token recebido é válido
     const session = await db.collection("sessions").findOne({token})
-      console.log(session)
     if (!session) return res.sendStatus(401);
   
-
     // Adicionar a transação
     await db.collection("transactions").insertOne({...req.body, email : session.email})
     res.sendStatus(201)
