@@ -3,8 +3,9 @@ import cors from "cors";
 import { MongoClient, ObjectId } from "mongodb";
 import dotenv from "dotenv"
 import joi from "joi";
-import bcrypt from "bcrypt"
-import { v4 as uuid } from "uuid"
+import bcrypt from "bcrypt";
+import dayjs from "dayjs";
+import { v4 as uuid } from "uuid";
 
 //Criação do APP Servidor
 const app = express();
@@ -34,6 +35,7 @@ mongoClient
 })
 
   const operationSchema = joi.object({
+    description: joi.string().required(),
     value: joi.number().positive().precision(2).strict().required(),
     tipo: joi.string().valid("moneyIn", "moneyOut").required()
   })
@@ -106,7 +108,7 @@ app.get("/home", async (req, res) => {
 })
 
 app.post("/transactions", async (req, res) => {
-  const {value, tipo} = req.body;
+  const {description, value, tipo} = req.body;
   const { authorization } = req.headers
   const token = authorization?.replace("Bearer ", "")
 
@@ -124,7 +126,7 @@ app.post("/transactions", async (req, res) => {
     if (!session) return res.sendStatus(401);
   
     // Adicionar a transação
-    await db.collection("transactions").insertOne({...req.body, email : session.email})
+    await db.collection("transactions").insertOne({...req.body, date: dayjs().format("DD/MM") , email : session.email})
     res.sendStatus(201)
 
     
