@@ -104,7 +104,6 @@ app.post("/transactions", async (req, res) => {
   if (!token) return res.sendStatus(401);
 
   const validation = operationSchema.validate(req.body, {abortEarly: false});
-
   if (validation.error) {
     const errors = validation.error.details.map(detail => detail.message);
     return res.status(422).send(errors)
@@ -115,12 +114,13 @@ app.post("/transactions", async (req, res) => {
 
     // Verificar se o token recebido é válido
     const session = await db.collection("sessions").findOne({token})
-    console.log(session)
+      console.log(session)
     if (!session) return res.sendStatus(401);
   
 
     // Adicionar a transação
     await db.collection("transactions").insertOne({...req.body, email : session.email})
+    res.sendStatus(201)
 
     
   }catch (err) {
