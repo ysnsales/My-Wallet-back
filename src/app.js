@@ -4,6 +4,7 @@ import { MongoClient, ObjectId } from "mongodb";
 import dotenv from "dotenv"
 import joi from "joi";
 import bcrypt from "bcrypt"
+import { v4 as uuid } from "uuid"
 
 //Criação do APP Servidor
 const app = express();
@@ -32,6 +33,10 @@ mongoClient
     password: joi.string().required().min(3)
 })
 
+  const operationSchema = joi.object({
+    value: joi.number().positive().precision(2).strict().required(),
+    tipo: joi.string().valid("moneyIn", "moneyOut").required()
+  })
   //Endpoints
 app.post("/sign-up", async (req, res) => {
   const { name, email, password} = req.body
@@ -67,9 +72,59 @@ app.post("/sign-in", async (req, res) => {
       const passwordIsCorrect = bcrypt.compareSync(password, user.password)
       if (!passwordIsCorrect) return res.status(401).send("Senha incorreta")
 
-      res.sendStatus(200)
+      const token = uuid();
+      await db.collection("sessions").insertOne({ token, email : user.email, idUser : user._id })
+      return res.status(200).send({token, idUser: user._id})
+
   } catch (err) {
       res.status(500).send(err.message)
+  }
+})
+
+app.get("home", async (req, res) => {
+  const { authorization } = req.headers
+  const token = authorization?.replace("Bearer ", "")
+
+  if (!token) return res.sendStatus(401);
+
+  try {
+    const user = await db.collection("sessions").findOne({token})
+    const transactions = await db.collection("transactions").find({idUser : user._id}).toArray();
+    res.send(transactions)
+  }catch (err) {
+    res.status(500).send(err.message)
+  }
+})
+
+app.post("/transactions", async (req, res) => {
+  const {value, tipo} = req.body;
+  const { authorization } = req.headers
+  const token = authorization?.replace("Bearer ", "")
+
+  if (!token) return res.sendStatus(401);
+
+  const validation = operationSchema.validate(req.body, {abortEarly: false});
+
+  if (validation.error) {
+    const errors = validation.error.details.map(detail => detail.message);
+    return res.status(422).send(errors)
+  };
+
+  try {
+    console.log(req.headers) 
+
+    // Verificar se o token recebido é válido
+    const session = await db.collection("sessions").findOne({token})
+    console.log(session)
+    if (!session) return res.sendStatus(401);
+  
+
+    // Adicionar a transação
+    await db.collection("transactions").insertOne({...req.body, email : session.email})
+
+    
+  }catch (err) {
+    res.status(500).send(err.message)
   }
 })
 
