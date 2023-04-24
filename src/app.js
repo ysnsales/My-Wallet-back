@@ -37,7 +37,7 @@ mongoClient
   const operationSchema = joi.object({
     description: joi.string().required(),
     value: joi.number().positive().precision(2).strict().required(),
-    tipo: joi.string().valid("moneyIn", "moneyOut").required()
+    type: joi.string().valid("moneyIn", "moneyOut").required()
   })
   //Endpoints
 app.post("/sign-up", async (req, res) => {
@@ -107,8 +107,8 @@ app.get("/home", async (req, res) => {
   }
 })
 
-app.post("/transactions", async (req, res) => {
-  const {description, value, tipo} = req.body;
+app.post("/transactions/:type", async (req, res) => {
+  const {description, value, type} = req.body;
   const { authorization } = req.headers
   const token = authorization?.replace("Bearer ", "")
 
@@ -138,4 +138,4 @@ app.post("/transactions", async (req, res) => {
 
   // Deixa o app escutando, à espera de requisições
 const PORT = 5000
-app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`)) 
+app.listen(process.env.PORT, () => console.log(`Servidor rodando na porta ${process.env.PORT}`)) 
