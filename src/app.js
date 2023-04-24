@@ -36,8 +36,7 @@ mongoClient
 
   const operationSchema = joi.object({
     description: joi.string().required(),
-    value: joi.number().positive().precision(2).strict().required(),
-    type: joi.string().valid("moneyIn", "moneyOut").required()
+    value: joi.number().positive().precision(2).strict().required()
   })
   //Endpoints
 app.post("/sign-up", async (req, res) => {
@@ -108,8 +107,9 @@ app.get("/home", async (req, res) => {
 })
 
 app.post("/transactions/:type", async (req, res) => {
-  const {description, value, type} = req.body;
-  const { authorization } = req.headers
+  const {description, value} = req.body;
+  const {type} = req.params;
+  const { authorization } = req.headers;
   const token = authorization?.replace("Bearer ", "")
 
   if (!token) return res.sendStatus(401);
@@ -126,7 +126,7 @@ app.post("/transactions/:type", async (req, res) => {
     if (!session) return res.sendStatus(401);
   
     // Adicionar a transação
-    await db.collection("transactions").insertOne({...req.body, date: dayjs().format("DD/MM") , email : session.email})
+    await db.collection("transactions").insertOne({...req.body, type, date: dayjs().format("DD/MM") , email : session.email})
     res.sendStatus(201)
 
     
