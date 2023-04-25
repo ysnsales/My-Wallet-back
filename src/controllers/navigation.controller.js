@@ -1,5 +1,8 @@
+import dayjs from "dayjs";
 import { db} from "../app.js";
+import { validateSchema } from "../middlewares/validateSchema.middleware.js";
 import { operationSchema } from "../schemas/operation.schema.js";
+
 
 export async function home(req, res){
     const { authorization } = req.headers
@@ -25,19 +28,16 @@ export async function home(req, res){
     }
   };
 
-  export async function transactions(req, res) {
+export async function transactions(req, res) {
     const {description, value} = req.body;
     const {type} = req.params;
     const { authorization } = req.headers;
     const token = authorization?.replace("Bearer ", "")
   
     if (!token) return res.sendStatus(401);
-  
-    const validation = operationSchema.validate(req.body, {abortEarly: false});
-    if (validation.error) {
-      const errors = validation.error.details.map(detail => detail.message);
-      return res.status(422).send(errors)
-    };
+    const errors = validateSchema(req.body);
+    if (errors) return res.status(422).send(errors);
+
   
     try {
       // Verificar se o token recebido é válido
@@ -50,6 +50,7 @@ export async function home(req, res){
   
       
     }catch (err) {
+      console.log(err)
       res.status(500).send(err.message)
     }
   };

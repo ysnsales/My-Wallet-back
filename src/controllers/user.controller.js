@@ -1,16 +1,11 @@
 import bcrypt from "bcrypt";
 import { v4 as uuid } from "uuid";
 import { db} from "../app.js";
-import { userSchema } from "../schemas/user.schema.js";
+import dayjs from "dayjs";
+
 
 export async function signUp(req, res) {
-    const { name, email, password} = req.body
-  
-    const validation = userSchema.validate(req.body, { abortEarly: false })
-    if (validation.error) {
-        const errors = validation.error.details.map((detail) => detail.message);
-        return res.status(422).send(errors);
-    }
+    const { name, email, password} = req.body;
   
     try {
         const user = await db.collection("users").findOne({ email })
@@ -27,7 +22,7 @@ export async function signUp(req, res) {
     }
   };
 
-  export async function signIn(req, res) {
+export async function signIn(req, res) {
     const { email, password } = req.body
   
     try {
