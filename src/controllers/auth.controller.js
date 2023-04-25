@@ -5,7 +5,6 @@ import db from "../db.js";
 export async function signUp(req, res) {
     const { name, email, password} = req.body
 
-
     try {
         const user = await db.collection("users").findOne({ email })
         if (user) return res.status(409).send("E-mail já cadastrado")

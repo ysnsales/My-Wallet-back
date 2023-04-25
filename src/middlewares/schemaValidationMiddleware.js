@@ -1,5 +1,3 @@
-import userSchema from "../schemas/userSchema.js";
-
 export function schemaValidationMiddleware(schema) {
     return (req, res, next) => {
 

@@ -1,9 +1,7 @@
 import express from "express";
 import cors from "cors";
-import joi from "joi";
 import authRouter from "./routers/authRouter.js";
 import navigationRouter from "./routers/navigationRouter.js";
-
 
 //Criação do APP Servidor
 const app = express();
@@ -13,16 +11,8 @@ app.use(express.json());
 app.use(authRouter);
 app.use(navigationRouter);
 
-  
-  //Schemas
-
-
-
-  //Endpoints
-
 
   // Deixa o app escutando, à espera de requisições
 const PORT = 5000
-app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`)) 
+app.listen(process.env.PORT, () => console.log(`Servidor rodando na porta ${process.env.PORT}`)) 
 
-//process.env.

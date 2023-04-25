@@ -1,4 +1,3 @@
-import operationSchema from "../schemas/transactionSchema.js";
 import db from "../db.js";
 import dayjs from "dayjs";
 
