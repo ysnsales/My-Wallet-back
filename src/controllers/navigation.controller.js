@@ -1,4 +1,5 @@
-import { db, operationSchema } from "../app.js";
+import { db} from "../app.js";
+import { operationSchema } from "../schemas/operation.schema.js";
 
 export async function home(req, res){
     const { authorization } = req.headers
