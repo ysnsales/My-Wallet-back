@@ -15,7 +15,7 @@ POST: /transactions/:type
 Headers:{Authorization: Bearer Token}
 Body:{"description":"small description", "value": 10.00}
 
-GET: /transactions
+GET: /home
 Headers:{Authorization: Bearer Token}
 
 ```
