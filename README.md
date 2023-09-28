@@ -24,8 +24,8 @@ Headers:{Authorization: Bearer Token}
 ## Instalação
 
 ```bash
-$ git clone https://github.com/ysnsales/My-Wallet-back
-$ cd My-Wallet-back
+$ git clone https://github.com/ysnsales/my-wallet-back
+$ cd my-wallet-back
 $ npm install
 ```
 
